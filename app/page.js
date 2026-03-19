@@ -1,65 +1,86 @@
-import Image from "next/image";
+'use client'
+import { useState, useMemo } from 'react';
+import { Search, X } from 'lucide-react';
+import Hero from '../components/Hero';
+import ProductCard from '../components/ProductCard';
+import CartDrawer from '../components/CartDrawer';
+import ProductModal from '../components/ProductModal';
+import { products } from '../data/products';
+import { useCart } from '../store/useCart';
 
 export default function Home() {
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+  const setSelectedProduct = useCart((state) => state.setSelectedProduct);
+
+  const categories = useMemo(() => {
+    const uniqueCategories = [...new Set(products.map((p) => p.category))];
+    return ['All', ...uniqueCategories];
+  }, []);
+
+  const handleCategoryChange = (cat) => {
+    setSearchQuery(''); 
+    setActiveCategory(cat);
+  };
+
+  const filteredProducts = useMemo(() => {
+    if (searchQuery.trim() !== '') {
+      return products.filter((p) => 
+        p.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    if (activeCategory === 'All') return products;
+    return products.filter((p) => p.category === activeCategory);
+  }, [activeCategory, searchQuery]);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    /* Pastikan main tidak memiliki padding top */
+    <main className="min-h-screen pb-20 overflow-x-hidden">
+      <Hero />
+      <CartDrawer />
+      <ProductModal />
+      
+      <section id="katalog" className="max-w-7xl mx-auto px-6 -mt-16 lg:-mt-24 relative z-30 pt-4 lg:pt-0">
+        <div className="flex flex-row items-center gap-3 w-full justify-between mb-12 bg-white/90 backdrop-blur-md p-4 rounded-3xl border border-gray-100 shadow-sm">
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide flex-1 mr-4">
+            {categories.map((cat) => (
+              <button 
+                key={cat} 
+                onClick={() => handleCategoryChange(cat)}
+                className={`px-6 py-3 rounded-2xl text-[10px] lg:text-[11px] font-black transition-all whitespace-nowrap uppercase tracking-widest ${
+                  activeCategory === cat && searchQuery === ''
+                    ? 'bg-[#1F2937] text-white shadow-md' 
+                    : 'bg-transparent text-gray-400 hover:text-[#1F2937] hover:bg-gray-50'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          <div className="shrink-0 flex items-center bg-[#F3F4F6] rounded-2xl px-4 h-[52px]">
+            <Search size={18} className="text-gray-400 mr-2" />
+            <input 
+              type="text"
+              placeholder="Cari..."
+              value={searchQuery}
+              onChange={(e) => {
+                // setSearchQuery(e.target.value);
+                if (e.target.value !== '') setActiveCategory('All');
+              }}
+              className="bg-transparent outline-none text-sm font-bold text-[#1F2937] w-[120px]"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          </div>
         </div>
-      </main>
-    </div>
+
+        <div key={activeCategory + searchQuery} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+          {filteredProducts.map((product) => (
+            <div key={product.id} onClick={() => setSelectedProduct(product)} className="cursor-pointer">
+              <ProductCard product={product} />
+            </div>
+          ))}
+        </div>
+      </section>
+    </main>
   );
 }

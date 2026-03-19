@@ -1,26 +1,25 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* Untuk Tailwind v4, kita panggil plugin scrollbar-hide 
+  langsung di bawah import utama 
+*/
+@plugin "tailwind-scrollbar-hide";
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: #1F2937;
+  background: #F9FAFB;
+  /* Tambahkan antialiasing agar font terlihat lebih tajam seperti di desain */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom utility untuk memastikan transisi hover smooth */
+@layer components {
+  .nav-link {
+    @apply transition-all duration-300 ease-in-out;
+  }
 }
