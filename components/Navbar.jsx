@@ -14,24 +14,33 @@ export default function Navbar() {
 
   // FUNGSI CHECKOUT WHATSAPP
   const handleWhatsAppCheckout = () => {
-    if (items.length === 0) return;
+  if (items.length === 0) return;
 
-    const nomorWA = "6285842326328"; // Ganti dengan nomor WA Anda
-    const daftarBelanja = items.map(item => 
-      `* ${item.name} (${item.quantity}x) - Rp${(item.price * item.quantity).toLocaleString('id-ID')}`
-    ).join('%0A');
+  const nomorWA = "6285842326328"; 
+  const daftarBelanja = items.map(item => {
+    // Tambahkan keterangan size jika ada
+    const sizeInfo = item.selectedSize ? ` [Size: ${item.selectedSize}]` : '';
+    return `* ${item.name}${sizeInfo} (${item.quantity}x) - Rp${(item.price * item.quantity).toLocaleString('id-ID')}`;
+  }).join('%0A');
 
-    const pesan = `Halo HIKEU!%0ASaya ingin memesan:%0A%0A${daftarBelanja}%0A%0A*Total: Rp ${totalPrice.toLocaleString('id-ID')}*%0A%0AMohon info ketersediaan stok dan cara pembayarannya. Terima kasih!`;
+  const pesan = `Halo HIKEU!%0ASaya ingin memesan:%0A%0A${daftarBelanja}%0A%0A*Total: Rp ${totalPrice.toLocaleString('id-ID')}*%0A%0AMohon info ketersediaan stok. Terima kasih!`;
 
-    window.open(`https://wa.me/${nomorWA}?text=${pesan}`, '_blank');
-  };
+  window.open(`https://wa.me/${nomorWA}?text=${pesan}`, '_blank');
+};
 
   return (
     <>
-      <nav className="fixed w-full z-[100] bg-black border-b border-white/10 h-20">
+     <nav className="fixed w-full z-100 bg-black border-b border-white/10 h-20">
         <div className="max-w-7xl mx-auto px-6 h-full flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <button onClick={() => setIsMobileMenuOpen(true)} className="lg:hidden text-white"><Menu/></button>
+            {/* BUTTON HAMBURGER */}
+            <button 
+              onClick={() => setIsMobileMenuOpen(true)} 
+              className="lg:hidden text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
+            >
+              <Menu size={24} />
+            </button>
+            
             <Link href="/" className="text-2xl font-black italic text-white uppercase tracking-tighter">
               HIKEU<span className="text-orange-600">.</span>
             </Link>
@@ -59,42 +68,93 @@ export default function Navbar() {
         </div>
       </nav>
 
+      {/* MOBILE MENU OVERLAY  */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="fixed inset-0 bg-black/90 z-160 backdrop-blur-md lg:hidden"
+            />
+            <motion.div 
+              initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed left-0 top-0 h-full w-[80%] max-w-75 bg-black z-170 shadow-2xl flex flex-col lg:hidden border-r border-white/10"
+            >
+              <div className="p-6 border-b border-white/10 flex justify-between items-center">
+                <span className="text-2xl font-black italic text-white uppercase tracking-tighter">HIKEU<span className="text-orange-600">.</span></span>
+                <button onClick={() => setIsMobileMenuOpen(false)} className="text-white p-2 hover:bg-white/10 rounded-full"><X size={24}/></button>
+              </div>
+              <div className="flex flex-col p-6 gap-6">
+                <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-black uppercase tracking-[0.2em] text-white hover:text-orange-600 transition-colors">Beranda</Link>
+                <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-black uppercase tracking-[0.2em] text-white hover:text-orange-600 transition-colors">Tentang Kami</Link>
+                <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-black uppercase tracking-[0.2em] text-white hover:text-orange-600 transition-colors">Kontak</Link>
+                <div className="pt-6 border-t border-white/10">
+                   <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 text-orange-600 font-black text-[10px] uppercase tracking-widest">
+                     <MessageSquare size={16} /> Tanya Admin via WA
+                   </Link>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
       {/* CART DRAWER */}
       <AnimatePresence>
         {isCartOpen && (
           <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setCartOpen(false)} className="fixed inset-0 bg-black/60 z-[140] backdrop-blur-sm" />
-            <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="fixed right-0 top-0 h-full w-full max-w-md bg-white z-[150] shadow-2xl flex flex-col">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setCartOpen(false)} className="fixed inset-0 bg-black/60 z-140 backdrop-blur-sm" />
+            <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="fixed right-0 top-0 h-full w-full max-w-md bg-white z-150 shadow-2xl flex flex-col">
               <div className="p-6 border-b flex justify-between items-center bg-[#0F172A] text-white">
                 <h2 className="font-black uppercase italic tracking-tighter text-xl">Keranjang Anda<span className="text-orange-600">.</span></h2>
                 <button onClick={() => setCartOpen(false)} className="p-2 hover:bg-white/10 rounded-full"><X/></button>
               </div>
 
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                {items.length === 0 ? (
-                  <div className="text-center py-20">
-                    <ShoppingBag size={48} className="mx-auto text-gray-300 mb-4" />
-                    <p className="text-gray-500 font-bold uppercase text-xs tracking-widest">Keranjang masih kosong</p>
-                  </div>
-                ) : (
-                  items.map((item) => (
-                    <div key={item.id} className="flex gap-4 items-center bg-gray-50 p-4 rounded-2xl border border-gray-100">
-                      <div className="w-20 h-20 bg-gray-200 rounded-xl overflow-hidden shrink-0">
-                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-black uppercase italic text-sm text-[#0F172A]">{item.name}</h4>
-                        <p className="text-orange-600 font-bold text-xs">Rp {item.price.toLocaleString('id-ID')}</p>
-                        <div className="flex items-center gap-3 mt-2">
-                          <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="p-1 bg-white rounded-lg border shadow-sm"><Minus size={14}/></button>
-                          <span className="font-black text-sm">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="p-1 bg-white rounded-lg border shadow-sm"><Plus size={14}/></button>
-                        </div>
-                      </div>
-                      <button onClick={() => removeItem(item.id)} className="text-red-400 hover:text-red-600 p-2"><Trash2 size={18}/></button>
-                    </div>
-                  ))
-                )}
+                {/* Isi dari items.map dalam Cart Drawer */}
+{items.map((item) => (
+  <div key={item.id} className="flex gap-4 items-center bg-gray-50 p-4 rounded-2xl border border-gray-100">
+    <div className="w-20 h-20 bg-gray-200 rounded-xl overflow-hidden shrink-0">
+      <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+    </div>
+    <div className="flex-1">
+      <h4 className="font-black uppercase italic text-sm text-[#0F172A] leading-tight">{item.name}</h4>
+      
+      {/* MENAMPILKAN UKURAN JIKA ADA */}
+      {item.selectedSize && (
+        <div className="flex items-center gap-1.5 mt-1">
+          <span className="text-[9px] font-black uppercase text-gray-400 tracking-widest">Size:</span>
+          <span className="bg-orange-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md italic">
+            {item.selectedSize}
+          </span>
+        </div>
+      )}
+
+      <p className="text-orange-600 font-bold text-xs mt-1">Rp {item.price.toLocaleString('id-ID')}</p>
+      
+      <div className="flex items-center gap-3 mt-3">
+        <button 
+          onClick={() => updateQuantity(item.id, item.quantity - 1)} 
+          className="p-1 bg-white rounded-lg border shadow-sm hover:bg-gray-50 active:scale-90 transition-all"
+        >
+          <Minus size={14}/>
+        </button>
+        <span className="font-black text-sm w-4 text-center">{item.quantity}</span>
+        <button 
+          onClick={() => updateQuantity(item.id, item.quantity + 1)} 
+          className="p-1 bg-white rounded-lg border shadow-sm hover:bg-gray-50 active:scale-90 transition-all"
+        >
+          <Plus size={14}/>
+        </button>
+      </div>
+    </div>
+    <button onClick={() => removeItem(item.id)} className="text-red-400 hover:text-red-600 p-2 transition-colors">
+      <Trash2 size={18}/>
+    </button>
+  </div>
+))}
               </div>
 
               {/* BAGIAN CHECKOUT YANG DIPERBAIKI */}

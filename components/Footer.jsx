@@ -13,10 +13,10 @@ export default function Footer() {
       { name: 'Kontak Kami', href: '/contact' },
     ],
     dukungan: [
-      { name: 'Panduan Ukuran', href: '#' },
-      { name: 'Kebijakan Pengembalian', href: '#' },
-      { name: 'FAQ', href: '#' },
-      { name: 'Konfirmasi Bayar', href: '#' },
+      { name: 'Panduan Ukuran', href: '/panduan-ukuran' },
+      { name: 'Kebijakan Pengembalian', href: '/kebijakan-pengembalian' },
+      { name: 'FAQ', href: '/faq' },
+      // { name: 'Konfirmasi Bayar', href: '#' },
     ],
   };
 
